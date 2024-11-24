@@ -1,0 +1,86 @@
+mport tkinter as tk
+import tkinter.messagebox as messagebox
+
+def calculate_total_time():
+    try:
+        swim_times = [float(entry.get()) for entry in swim_entries]
+        bike_speeds = [float(entry.get()) for entry in bike_speed_entries]
+        run_speeds = [float(entry.get()) for entry in run_speed_entries]
+
+        total_times = []
+        for i in range(len(swim_times)):
+            swim_time = swim_times[i]
+            bike_time = 40/bike_speeds[i]
+            run_time = 10/run_speeds[i]
+            total_time = swim_time + bike_time + run_time
+            total_times.append(total_time)
+            total_time_entries[i].delete(0, tk.END)
+            total_time_entries[i].insert(0, f"{total_time:.2f}")
+
+        winner_index = total_times.index(min(total_times))
+        winner_label.config(text=f"Чемпион: {names[winner_index]}")
+
+
+    except ValueError:
+        messagebox.showerror("Ошибка", "Введите числовые значения.")
+    except Exception as e:
+      messagebox.showerror("Ошибка", f"Произошла ошибка: {e}")
+
+
+
+root = tk.Tk()
+root.title("Соревнование по триатлону")
+
+names = ["Андрей", "Влад", "Муслим"]
+labels = ["Плавает (мин)", "Велосипед (км/час)", "Бег (км/час)"]
+
+swim_entries = []
+bike_speed_entries = []
+run_speed_entries = []
+total_time_entries = []
+
+for i, name in enumerate(names):
+    tk.Label(root, text=name).grid(row=0, column=i+1)
+    for j, label in enumerate(labels):
+        tk.Label(root, text=label).grid(row=j+1, column=0)
+        if j==0:
+          entry = tk.Entry(root)
+          entry.grid(row=j+1, column=i+1)
+          swim_entries.append(entry)
+          if i==0:
+              swim_entries[0].insert(0, "0")
+          elif i==1:
+              swim_entries[1].insert(0, "0")
+          else:
+              swim_entries[2].insert(0, "0")
+        elif j==1:
+          entry = tk.Entry(root)
+          entry.grid(row=j+1, column=i+1)
+          bike_speed_entries.append(entry)
+          if i==0:
+              bike_speed_entries[0].insert(0, "0")
+          elif i==1:
+              bike_speed_entries[1].insert(0, "0")
+          else:
+              bike_speed_entries[2].insert(0, "0")
+        else:
+          entry = tk.Entry(root)
+          entry.grid(row=j+1, column=i+1)
+          run_speed_entries.append(entry)
+          if i==0:
+              run_speed_entries[0].insert(0, "0")
+          elif i==1:
+              run_speed_entries[1].insert(0, "0")
+          else:
+              run_speed_entries[2].insert(0, "0")
+    entry = tk.Entry(root)
+    entry.grid(row=4, column=i+1)
+    total_time_entries.append(entry)
+
+tk.Button(root, text="Вычислить время", command=calculate_total_time).grid(row=5, column=0, columnspan=2)
+
+winner_label = tk.Label(root, text="Чемпион:")
+winner_label.grid(row=5, column=2, columnspan=2)
+
+
+root.mainloop()
