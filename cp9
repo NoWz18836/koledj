@@ -1,0 +1,55 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+
+using namespace std;
+
+struct PhoneEntry {
+    string surname;
+    string initials;
+    string phoneNumber;
+};
+
+int main() {
+    string filename = "Tel.txt";
+    string searchSurname, searchInitials;
+
+    cout << "Введите фамилию для поиска: ";
+    cin >> searchSurname;
+    cout << "Введите инициалы для поиска (например, И.О.): ";
+    cin >> searchInitials;
+
+    ifstream inputFile(filename);
+
+    if (!inputFile.is_open()) {
+        cerr << "Не удалось открыть файл " << filename << endl;
+        return 1;
+    }
+
+    string line;
+    bool found = false;
+
+    while (getline(inputFile, line)) {
+        stringstream ss(line); 
+        string surname, initials, phoneNumber;
+
+        if (ss >> surname >> initials >> phoneNumber) {
+            if (surname == searchSurname && initials == searchInitials) {
+                cout << "Номер телефона для " << surname << " " << initials << ": " << phoneNumber << endl;
+                found = true;
+                break;
+            }
+        } else {
+            cerr << "Некорректный формат строки в файле: " << line << endl;
+        }
+    }
+
+    inputFile.close();
+
+    if (!found) {
+        cout << "Сотрудник с фамилией " << searchSurname << " и инициалами " << searchInitials << " не найден." << endl;
+    }
+
+    return 0;
+}
