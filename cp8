@@ -1,0 +1,54 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm> 
+#include <numeric>  
+
+using namespace std;
+
+struct Student {
+    string surname;
+    string name;
+    string patronymic;
+    double height;
+    double weight;
+};
+
+int main() {
+    vector<Student> students = {
+        {"Иванов", "Иван", "Иванович", 175.5, 70.0},
+        {"Петров", "Петр", "Петрович", 182.0, 80.0},
+        {"Сидоров", "Сидор", "Сидорович", 168.0, 65.0},
+        {"Кузнецов", "Алексей", "Сергеевич", 190.0, 85.0},
+        {"Смирнов", "Дмитрий", "Александрович", 172.3, 75.0}
+    };
+
+    double totalHeight = 0.0;
+    for (const auto& student : students) {
+        totalHeight += student.height;
+    }
+    double averageHeight = students.empty() ? 0.0 : totalHeight / students.size(); 
+
+
+    double maxHeight = students.empty() ? 0.0 : students[0].height; 
+    double minHeight = students.empty() ? 0.0 : students[0].height;
+
+    for (const auto& student : students) {
+        maxHeight = max(maxHeight, student.height);
+        minHeight = min(minHeight, student.height);
+    }
+
+    int basketballCount = 0;
+    for (const auto& student : students) {
+        if (student.height > 170.0) {
+            basketballCount++;
+        }
+    }
+
+    cout << "Средний рост учеников: " << averageHeight << " см" << endl;
+    cout << "Рост самого высокого ученика: " << maxHeight << " см" << endl;
+    cout << "Рост самого низкого ученика: " << minHeight << " см" << endl;
+    cout << "Количество учеников, подходящих для баскетбольной секции: " << basketballCount << endl;
+
+    return 0;
+}
