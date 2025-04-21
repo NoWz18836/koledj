@@ -1,0 +1,33 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+int countOccurrences(const string& text, const string& word) {
+  int count = 0;
+  size_t pos = 0;
+
+  while ((pos = text.find(word, pos)) != string::npos) {
+
+    ++count; 
+    pos += word.length();
+  }
+
+  return count;
+}
+
+int main() {
+  string text, word;
+
+  cout << "Введите текст: ";
+  getline(cin, text);
+
+  cout << "Введите слово для поиска: ";
+  cin >> word;
+
+  int occurrences = countOccurrences(text, word);
+
+  cout << "Слово \"" << word << "\" встречается в тексте " << occurrences << " раз." << endl;
+
+  return 0;
+}
