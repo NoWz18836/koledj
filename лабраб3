@@ -1,0 +1,127 @@
+import sys
+import os
+import openpyxl
+from docxtpl import DocxTemplate
+import datetime
+from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
+                             QLabel, QLineEdit, QPushButton, QFileDialog,
+                             QMessageBox)
+
+class TemplateProcessor(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.template_path = ""
+        self.excel_path = ""
+        self.output_folder = ""
+        self.initUI()
+
+    def initUI(self):
+        self.template_label = QLabel("Путь к шаблону:")
+        self.template_path_edit = QLineEdit()
+        self.template_button = QPushButton("Выбрать")
+
+        self.excel_label = QLabel("Путь к Excel:")
+        self.excel_path_edit = QLineEdit()
+        self.excel_button = QPushButton("Выбрать")
+
+        self.output_label = QLabel("Папка для сохранения:")
+        self.output_folder_edit = QLineEdit()
+        self.output_button = QPushButton("Выбрать")
+
+        self.process_button = QPushButton("Выполнить")
+        self.exit_button = QPushButton("Выйти")
+
+        template_layout = QHBoxLayout()
+        template_layout.addWidget(self.template_label)
+        template_layout.addWidget(self.template_path_edit)
+        template_layout.addWidget(self.template_button)
+
+        excel_layout = QHBoxLayout()
+        excel_layout.addWidget(self.excel_label)
+        excel_layout.addWidget(self.excel_path_edit)
+        excel_layout.addWidget(self.excel_button)
+
+        output_layout = QHBoxLayout()
+        output_layout.addWidget(self.output_label)
+        output_layout.addWidget(self.output_folder_edit)
+        output_layout.addWidget(self.output_button)
+
+        button_layout = QHBoxLayout()
+        button_layout.addWidget(self.process_button)
+        button_layout.addWidget(self.exit_button)
+
+        main_layout = QVBoxLayout()
+        main_layout.addLayout(template_layout)
+        main_layout.addLayout(excel_layout)
+        main_layout.addLayout(output_layout)
+        main_layout.addLayout(button_layout)
+
+        self.setLayout(main_layout)
+        self.setWindowTitle("Template Processor")
+
+        self.template_button.clicked.connect(self.select_template)
+        self.excel_button.clicked.connect(self.select_excel)
+        self.output_button.clicked.connect(self.select_output)
+        self.process_button.clicked.connect(self.process_data)
+        self.exit_button.clicked.connect(self.close)
+
+        self.show()
+
+    def select_template(self):
+        self.template_path = QFileDialog.getOpenFileName(self, "Выберите шаблон", "", "Word Documents (*.docx *.odt)")[0]
+        self.template_path_edit.setText(self.template_path)
+
+    def select_excel(self):
+        self.excel_path = QFileDialog.getOpenFileName(self, "Выберите Excel файл", "", "Excel Files (*.xlsx *.xls)")[0]
+        self.excel_path_edit.setText(self.excel_path)
+
+    def select_output(self):
+        self.output_folder = QFileDialog.getExistingDirectory(self, "Выберите папку для сохранения")
+        self.output_folder_edit.setText(self.output_folder)
+
+    def process_data(self):
+        try:
+            template_path = self.template_path_edit.text()
+            excel_path = self.excel_path_edit.text()
+            output_folder = self.output_folder_edit.text()
+
+            if not template_path or not excel_path or not output_folder:
+                QMessageBox.critical(self, "Ошибка", "Пожалуйста, заполните все поля.")
+                return
+
+            if not os.path.exists(output_folder):
+                os.makedirs(output_folder)
+
+            wb = openpyxl.load_workbook(excel_path)
+            ws = wb.active
+            data = []
+            for row in ws.iter_rows(min_row=2):
+                sar_value = row[1].value
+                if isinstance(sar_value, datetime.datetime):
+                     sar_value = sar_value.strftime('%d.%m.%Y')
+
+                data.append({
+                    'var': row[0].value,
+                    'sar': sar_value,
+                    'gar': row[2].value
+                })
+
+            template = DocxTemplate(template_path)
+            for i, record in enumerate(data):
+                template.render(record)
+                filename = os.path.join(output_folder, f'result_{i + 1}.docx')
+                template.save(filename)
+
+            QMessageBox.information(self, "Успех", "Документы успешно созданы!")
+
+        except FileNotFoundError:
+            QMessageBox.critical(self, "Ошибка", "Файл не найден. Проверьте пути.")
+        except openpyxl.utils.exceptions.InvalidFileException:
+            QMessageBox.critical(self, "Ошибка", "Неверный формат Excel файла.")
+        except Exception as e:
+            QMessageBox.critical(self, "Ошибка", f"Произошла ошибка: {e}")
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    ex = TemplateProcessor()
+    sys.exit(app.exec_())
