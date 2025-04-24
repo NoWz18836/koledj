@@ -1,0 +1,80 @@
+import tkinter as tk
+import tkinter.filedialog as fd
+import os
+import datetime
+import getpass
+
+def open_file():
+    """Открывает диалоговое окно выбора файла и отображает информацию о файле."""
+    filepath = fd.askopenfilename()
+    if filepath:
+        try:
+            filename = os.path.basename(filepath)
+            extension = os.path.splitext(filename)[1]
+            size = os.path.getsize(filepath)
+            creation_time = datetime.datetime.fromtimestamp(os.path.getctime(filepath)).strftime('%Y-%m-%d %H:%M:%S')
+            modification_time = datetime.datetime.fromtimestamp(os.path.getmtime(filepath)).strftime('%Y-%m-%d %H:%M:%S')
+            owner = getpass.getuser()  
+            path = filepath
+
+            name_label_text.set(filename)
+            extension_label_text.set(extension)
+            size_label_text.set(str(size) + " bytes")
+            creation_label_text.set(creation_time)
+            modification_label_text.set(modification_time)
+            owner_label_text.set(owner)
+            path_label_text.set(path)
+
+        except Exception as e:
+            path_label_text.set(f"Error: {e}")
+
+
+def go_back():
+    """Функция для кнопки 'Назад' (пока ничего не делает)."""
+    print("Go back button clicked (functionality to be implemented)")
+  
+
+
+root = tk.Tk()
+root.title("File Information")
+
+
+name_label_text = tk.StringVar()
+extension_label_text = tk.StringVar()
+size_label_text = tk.StringVar()
+creation_label_text = tk.StringVar()
+modification_label_text = tk.StringVar()
+owner_label_text = tk.StringVar()
+path_label_text = tk.StringVar()
+
+
+tk.Label(root, text="Название:").grid(row=1, column=0, sticky="w", padx=5, pady=2)
+tk.Label(root, textvariable=name_label_text).grid(row=1, column=1, sticky="w", padx=5, pady=2)
+
+tk.Label(root, text="Расширение:").grid(row=2, column=0, sticky="w", padx=5, pady=2)
+tk.Label(root, textvariable=extension_label_text).grid(row=2, column=1, sticky="w", padx=5, pady=2) 
+
+tk.Label(root, text="Размер:").grid(row=3, column=0, sticky="w", padx=5, pady=2)
+tk.Label(root, textvariable=size_label_text).grid(row=3, column=1, sticky="w", padx=5, pady=2) 
+
+tk.Label(root, text="Дата создание:").grid(row=4, column=0, sticky="w", padx=5, pady=2)
+tk.Label(root, textvariable=creation_label_text).grid(row=4, column=1, sticky="w", padx=5, pady=2) 
+
+tk.Label(root, text="Дата изменение:").grid(row=5, column=0, sticky="w", padx=5, pady=2)
+tk.Label(root, textvariable=modification_label_text).grid(row=5, column=1, sticky="w", padx=5, pady=2) 
+
+tk.Label(root, text="Владелец:").grid(row=6, column=0, sticky="w", padx=5, pady=2)
+tk.Label(root, textvariable=owner_label_text).grid(row=6, column=1, sticky="w", padx=5, pady=2)
+
+tk.Label(root, text="Путь:").grid(row=7, column=0, sticky="w", padx=5, pady=2)
+path_entry = tk.Entry(root, textvariable=path_label_text, width=40) 
+path_entry.grid(row=7, column=1, sticky="w", padx=5, pady=2)
+path_entry.config(state="disabled")
+
+back_button = tk.Button(root, text="Назад", command=go_back)
+back_button.grid(row=1, column=2, padx=5, pady=2)
+
+open_button = tk.Button(root, text="Открыть", command=open_file)
+open_button.grid(row=7, column=2, padx=5, pady=2)
+
+root.mainloop()
